@@ -5,14 +5,14 @@ use crate::types::{Attribute, AttributeValue, GroupSpan, Path, PathSegment, VisM
 use proc_macro2::{Delimiter, Ident, Punct, Spacing, TokenStream, TokenTree};
 use std::iter::Peekable;
 
-pub(crate) type TokenIter = Peekable<proc_macro2::token_stream::IntoIter>;
+pub type TokenIter = Peekable<proc_macro2::token_stream::IntoIter>;
 
-pub(crate) fn tokens_from_slice(slice: &[TokenTree]) -> TokenIter {
+pub fn tokens_from_slice(slice: &[TokenTree]) -> TokenIter {
     let stream = TokenStream::from_iter(slice.iter().cloned());
     stream.into_iter().peekable()
 }
 
-pub(crate) fn parse_any_ident(tokens: &mut TokenIter, panic_context: &str) -> Ident {
+pub fn parse_any_ident(tokens: &mut TokenIter, panic_context: &str) -> Ident {
     let next_token = tokens.next();
     match next_token {
         Some(TokenTree::Ident(ident)) => ident,
@@ -23,7 +23,7 @@ pub(crate) fn parse_any_ident(tokens: &mut TokenIter, panic_context: &str) -> Id
     }
 }
 
-pub(crate) fn parse_ident(tokens: &mut TokenIter, expected: &str, panic_context: &str) -> Ident {
+pub fn parse_ident(tokens: &mut TokenIter, expected: &str, panic_context: &str) -> Ident {
     let next_token = tokens.next();
     match next_token {
         Some(TokenTree::Ident(ident)) if ident == expected => ident,
@@ -34,7 +34,7 @@ pub(crate) fn parse_ident(tokens: &mut TokenIter, expected: &str, panic_context:
     }
 }
 
-pub(crate) fn consume_any_ident(tokens: &mut TokenIter) -> Option<Ident> {
+pub fn consume_any_ident(tokens: &mut TokenIter) -> Option<Ident> {
     match tokens.peek() {
         Some(TokenTree::Ident(ident)) => {
             let ident = ident.clone();
@@ -45,7 +45,7 @@ pub(crate) fn consume_any_ident(tokens: &mut TokenIter) -> Option<Ident> {
     }
 }
 
-pub(crate) fn consume_ident(tokens: &mut TokenIter, expected: &str) -> Option<Ident> {
+pub fn consume_ident(tokens: &mut TokenIter, expected: &str) -> Option<Ident> {
     match tokens.peek() {
         Some(TokenTree::Ident(ident)) if ident == expected => {
             let ident = ident.clone();
@@ -56,7 +56,7 @@ pub(crate) fn consume_ident(tokens: &mut TokenIter, expected: &str) -> Option<Id
     }
 }
 
-pub(crate) fn parse_punct(tokens: &mut TokenIter, expected: char, panic_context: &str) -> Punct {
+pub fn parse_punct(tokens: &mut TokenIter, expected: char, panic_context: &str) -> Punct {
     let next_token = tokens.next();
     match next_token {
         Some(TokenTree::Punct(punct)) if punct.as_char() == expected => punct,
@@ -67,7 +67,7 @@ pub(crate) fn parse_punct(tokens: &mut TokenIter, expected: char, panic_context:
     }
 }
 
-pub(crate) fn consume_punct(tokens: &mut TokenIter, expected: char) -> Option<Punct> {
+pub fn consume_punct(tokens: &mut TokenIter, expected: char) -> Option<Punct> {
     match tokens.peek() {
         Some(TokenTree::Punct(punct)) if punct.as_char() == expected => {
             let punct = punct.clone();
@@ -175,18 +175,18 @@ fn consume_attributes_with_inner(tokens: &mut TokenIter, expect_inner: bool) -> 
 /// Outer macro attributes of the form `#[attribute]`
 ///
 /// Panics if any inner attributes such as `#![attribute]` are encountered.
-pub(crate) fn consume_outer_attributes(tokens: &mut TokenIter) -> Vec<Attribute> {
+pub fn consume_outer_attributes(tokens: &mut TokenIter) -> Vec<Attribute> {
     consume_attributes_with_inner(tokens, false)
 }
 
 /// Inner macro attributes of the form `#![attribute]`.
 ///
 /// Stops _before_ encountering any outer attributes such as `#[attribute]`.
-pub(crate) fn consume_inner_attributes(tokens: &mut TokenIter) -> Vec<Attribute> {
+pub fn consume_inner_attributes(tokens: &mut TokenIter) -> Vec<Attribute> {
     consume_attributes_with_inner(tokens, true)
 }
 
-pub(crate) fn consume_vis_marker(tokens: &mut TokenIter) -> Option<VisMarker> {
+pub fn consume_vis_marker(tokens: &mut TokenIter) -> Option<VisMarker> {
     match tokens.peek() {
         Some(TokenTree::Ident(ident)) if ident == "pub" => {
             let pub_token = tokens
@@ -217,7 +217,7 @@ pub(crate) fn consume_vis_marker(tokens: &mut TokenIter) -> Option<VisMarker> {
 // separator in between angle brackets
 // eg consume_stuff_until(..., |token| token == ',') will consume all
 // of `Foobar<A, B>,` except for the last comma
-pub(crate) fn consume_stuff_until(
+pub fn consume_stuff_until(
     tokens: &mut TokenIter,
     predicate: impl FnMut(&TokenTree) -> bool,
     must_find_predicate: bool,
@@ -274,14 +274,14 @@ pub(crate) fn consume_stuff_until(
     output_tokens
 }
 
-pub(crate) fn consume_comma(tokens: &mut TokenIter) -> Option<Punct> {
+pub fn consume_comma(tokens: &mut TokenIter) -> Option<Punct> {
     consume_punct(tokens, ',')
 }
 
 /// Parse `::`, as in path separator or turbofish.
 ///
 /// Does not advance `tokens` if the double colon is not found.
-pub(crate) fn consume_colon2(tokens: &mut TokenIter) -> Option<[Punct; 2]> {
+pub fn consume_colon2(tokens: &mut TokenIter) -> Option<[Punct; 2]> {
     // TODO consider multiple-lookahead instead of potentially cloning many tokens
     let before_start = tokens.clone();
 
@@ -300,7 +300,7 @@ pub(crate) fn consume_colon2(tokens: &mut TokenIter) -> Option<[Punct; 2]> {
 }
 
 /// Tries to parse a path expressions; returns `None` if not matching.
-pub(crate) fn consume_path(mut tokens: TokenIter) -> Option<Path> {
+pub fn consume_path(mut tokens: TokenIter) -> Option<Path> {
     let mut segments = vec![];
 
     // Leading `::` is optional
