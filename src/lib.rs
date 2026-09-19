@@ -112,7 +112,7 @@ mod parse_fn;
 mod parse_impl;
 mod parse_mod;
 mod parse_type;
-mod parse_utils;
+pub mod parse_utils;
 mod punctuated;
 mod types;
 mod types_edition;

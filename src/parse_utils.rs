@@ -1,3 +1,5 @@
+//! Internally used utility functions for parsing syntax
+
 use crate::parse_type::consume_generic_args;
 use crate::types::{Attribute, AttributeValue, GroupSpan, Path, PathSegment, VisMarker};
 use proc_macro2::{Delimiter, Ident, Punct, Spacing, TokenStream, TokenTree};
