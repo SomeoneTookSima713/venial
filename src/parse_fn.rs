@@ -1,3 +1,5 @@
+//! Internal functions for parsing functions
+
 use crate::parse_type::{
     consume_field_type, consume_generic_params, consume_item_name, consume_lifetime,
     consume_where_clause,
@@ -69,7 +71,9 @@ pub(crate) fn consume_fn_qualifiers(tokens: &mut TokenIter) -> FnQualifiers {
     }
 }
 
-fn parse_fn_params(tokens: TokenStream) -> Punctuated<FnParam> {
+/// Parses function parameters (or syntax similar to it), consuming tokens
+/// until invalid syntax is encountered
+pub fn parse_fn_params(tokens: TokenStream) -> Punctuated<FnParam> {
     let mut fields = Punctuated::new();
 
     let mut tokens = tokens.into_iter().peekable();

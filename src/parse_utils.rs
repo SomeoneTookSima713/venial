@@ -5,13 +5,16 @@ use crate::types::{Attribute, AttributeValue, GroupSpan, Path, PathSegment, VisM
 use proc_macro2::{Delimiter, Ident, Punct, Spacing, TokenStream, TokenTree};
 use std::iter::Peekable;
 
+/// The iterator type used for most functions in this module
 pub type TokenIter = Peekable<proc_macro2::token_stream::IntoIter>;
 
+/// Creates a [`TokenIter`] iterator from the given slice of tokens
 pub fn tokens_from_slice(slice: &[TokenTree]) -> TokenIter {
     let stream = TokenStream::from_iter(slice.iter().cloned());
     stream.into_iter().peekable()
 }
 
+/// Consumes and returns an identifier token, panicking if the next token in the given iterator isn't one
 pub fn parse_any_ident(tokens: &mut TokenIter, panic_context: &str) -> Ident {
     let next_token = tokens.next();
     match next_token {
@@ -23,6 +26,7 @@ pub fn parse_any_ident(tokens: &mut TokenIter, panic_context: &str) -> Ident {
     }
 }
 
+/// Consumes and returns a specific identifier token, panicking if the next token in the given iterator isn't it
 pub fn parse_ident(tokens: &mut TokenIter, expected: &str, panic_context: &str) -> Ident {
     let next_token = tokens.next();
     match next_token {
@@ -34,6 +38,7 @@ pub fn parse_ident(tokens: &mut TokenIter, expected: &str, panic_context: &str) 
     }
 }
 
+/// Consumes and returns an identifier token
 pub fn consume_any_ident(tokens: &mut TokenIter) -> Option<Ident> {
     match tokens.peek() {
         Some(TokenTree::Ident(ident)) => {
@@ -45,6 +50,7 @@ pub fn consume_any_ident(tokens: &mut TokenIter) -> Option<Ident> {
     }
 }
 
+/// Consumes and returns a specific identifier token
 pub fn consume_ident(tokens: &mut TokenIter, expected: &str) -> Option<Ident> {
     match tokens.peek() {
         Some(TokenTree::Ident(ident)) if ident == expected => {
@@ -56,6 +62,7 @@ pub fn consume_ident(tokens: &mut TokenIter, expected: &str) -> Option<Ident> {
     }
 }
 
+/// Consumes and returns a specific punctuation token, panicking if the next token in the iterator isn't it
 pub fn parse_punct(tokens: &mut TokenIter, expected: char, panic_context: &str) -> Punct {
     let next_token = tokens.next();
     match next_token {
@@ -67,6 +74,7 @@ pub fn parse_punct(tokens: &mut TokenIter, expected: char, panic_context: &str) 
     }
 }
 
+/// Consumes and returns a specific punctuation token
 pub fn consume_punct(tokens: &mut TokenIter, expected: char) -> Option<Punct> {
     match tokens.peek() {
         Some(TokenTree::Punct(punct)) if punct.as_char() == expected => {
@@ -186,6 +194,7 @@ pub fn consume_inner_attributes(tokens: &mut TokenIter) -> Vec<Attribute> {
     consume_attributes_with_inner(tokens, true)
 }
 
+/// Consumes and returns a visibility marker (`pub`)
 pub fn consume_vis_marker(tokens: &mut TokenIter) -> Option<VisMarker> {
     match tokens.peek() {
         Some(TokenTree::Ident(ident)) if ident == "pub" => {
@@ -213,10 +222,10 @@ pub fn consume_vis_marker(tokens: &mut TokenIter) -> Option<VisMarker> {
     }
 }
 
-// Consumes tokens until a separator is reached *unless* the
-// separator in between angle brackets
-// eg consume_stuff_until(..., |token| token == ',') will consume all
-// of `Foobar<A, B>,` except for the last comma
+/// Consumes tokens until a separator is reached *unless* the
+/// separator in between angle brackets
+/// eg consume_stuff_until(..., |token| token == ',') will consume all
+/// of `Foobar<A, B>,` except for the last comma
 pub fn consume_stuff_until(
     tokens: &mut TokenIter,
     predicate: impl FnMut(&TokenTree) -> bool,
@@ -274,6 +283,7 @@ pub fn consume_stuff_until(
     output_tokens
 }
 
+/// Consumes and returns a comma (identical to `consume_punct(tokens, ',')`)
 pub fn consume_comma(tokens: &mut TokenIter) -> Option<Punct> {
     consume_punct(tokens, ',')
 }
@@ -300,7 +310,7 @@ pub fn consume_colon2(tokens: &mut TokenIter) -> Option<[Punct; 2]> {
 }
 
 /// Tries to parse a path expressions; returns `None` if not matching.
-pub fn consume_path(mut tokens: TokenIter) -> Option<Path> {
+pub fn consume_path(mut tokens: &mut TokenIter) -> Option<Path> {
     let mut segments = vec![];
 
     // Leading `::` is optional

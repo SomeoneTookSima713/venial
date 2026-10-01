@@ -800,13 +800,13 @@ impl TypeExpr {
     ///
     /// If it does not match a path, `None` is returned.
     pub fn as_path(&self) -> Option<Path> {
-        let tokens = if let Some(path) = self.unwrap_invisible_group() {
+        let mut tokens = if let Some(path) = self.unwrap_invisible_group() {
             tokens_from_slice(&path)
         } else {
             tokens_from_slice(&self.tokens)
         };
 
-        consume_path(tokens)
+        consume_path(&mut tokens)
     }
 
     /// If the type has a top-level `Group` token without separator, extract the contents. Otherwise return `None`.

@@ -108,7 +108,7 @@ mod tests;
 mod error;
 mod parse;
 mod parse_extern;
-mod parse_fn;
+pub mod parse_fn;
 mod parse_impl;
 mod parse_mod;
 mod parse_type;
